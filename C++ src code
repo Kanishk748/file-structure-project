@@ -1,0 +1,873 @@
+
+#include<iostream>
+#include<string.h>
+#include<cstring>
+#include<fstream>
+#include<stdlib.h>
+#include<iomanip>
+
+using namespace std;
+
+
+// MENU GLOBAL FUNCTION #################################################################################################################
+void MainMenu();
+void UserMenu();
+void AdminMenu();
+void Welcome();
+
+fstream buses,ticket;
+
+// CLASS ADMIN ################################################################################################################################
+class Admin
+{
+private:
+    int busID, max_seats,fare,booked,ticketNo;
+    char DeptSt[200],Time[50];
+
+public:
+    void AdminLogin();
+    void AddBus();
+    void ViewBus();
+    void showBus();
+    void cancelTickets();
+    void modifyTickets();
+    void deleteBus();
+    void viewBookings();
+    void showTicket();
+
+    Admin()
+    {
+        busID = 0;
+        max_seats = 50;
+        booked = 0;
+        fare = 0;
+        ticketNo = 0;
+        strcpy(Time, "9:10AM");
+        strcpy(DeptSt, "");
+    }
+
+    int getBusId()
+    {
+        return busID;
+    }
+
+    char* getDeptSt()
+    {
+        return DeptSt;
+    }
+
+    void book()
+    {
+        booked++;
+    }
+
+    char* getArrTime()
+    {
+        return Time;
+    }
+
+    int getBooked()
+    {
+        return booked;
+    }
+
+    int getMax()
+    {
+        return max_seats;
+    }
+
+    int getFare()
+    {
+        return fare;
+    }
+
+    int getTicketNo()
+    {
+        return ticketNo;
+    }
+
+    void setTicketNo()
+    {
+        ticketNo++;
+    }
+
+} Ad1;
+
+// ADD BUS FUNCTION #################################################################################################################
+void Admin::AddBus()
+{
+    //
+
+    cout<<"\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ###################::ADD BUS::##################\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Bus Number:-> ";
+    cin >> busID;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Time:-> ";
+    cin.ignore();
+    cin.getline(Time,50);
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tDestination:-> ";
+    cin.getline(DeptSt,200);
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tFare:-> ";
+    cin >> fare;
+
+    buses.open("Buses.dat",ios::out|ios::app|ios::binary);
+    buses.write((char*)this, sizeof(*this));
+    buses.close();
+
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tBus Added Successfully...!!!:-> \n";
+}
+
+//SHOW BUS FUNCTION ##########################################################################################################
+void Admin::showBus()
+{
+
+    cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\tBus No:-> " << busID;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tDestination:-> " << DeptSt;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tTime:-> " << Time;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tSeats Remaining:-> " << max_seats - booked;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tFare:-> " << fare;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+
+    cout <<"\n\n";
+}
+
+// VIEW BUS FUNCTION #################################################################################################################
+void Admin::ViewBus()
+{
+    //
+
+    buses.open("Buses.dat",ios::in|ios::app|ios::binary);
+    if(!buses)
+        cout<<"\n\t\t\t\tFile Not Found...!!!";
+    else
+    {
+        cout<<"\n\n";
+        cout<<"\t                                                     ::BUS DETAILS::                                             \n\n";
+        cout<<"\t===================================================================================================================\n";
+        cout<<"\t"<<"   Bus No." << setw(22) << "Destination" << setw(16) << "Arrival" << setw(20) << "Seats" << setw(16) << "Fare" << "\n";
+        cout<<"\t===================================================================================================================\n";
+
+        buses.read((char*)this, sizeof(*this));
+
+        while(!buses.eof())
+        {
+            cout << "\n\t    " << busID << setw(20) << DeptSt << setw(16) << Time << setw(22) << max_seats - booked << setw(18) << fare << "\n";
+            buses.read((char*)this, sizeof(*this));
+
+        }
+        buses.close();
+    }
+}
+
+//SHOW TICKET FUNCTION #################################################################################################################
+void Admin::showTicket()
+{
+//    cout<<"\n\t\t\t\tTicket No:-> " << ticketNo;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tBus No:-> " << busID;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tDestination:-> " << DeptSt;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tTime:-> " << Time;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tFare:-> " << fare;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+
+    cout <<"\n\n";
+}
+
+// ADMIN LOGIN FUNCTION ##################################################################################################################
+void Admin::AdminLogin()
+{
+    string AdmnUname, AdmnPass;
+
+//    //
+
+    cout<<"\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t #################::ADMIN LOGIN::################\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter AdminID:-> ";
+    cin>>AdmnUname;
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Password:-> ";
+    cin>>AdmnPass;
+
+    if(AdmnUname == "admin" && AdmnPass == "pass")
+    {
+        AdminMenu();
+    }
+    else
+    {
+        cout<<"\n\t\t\t\t\t\t\t\t\t\tUsername or Password is wrong...!!! ";
+        //
+        AdminLogin();
+    }
+
+}
+
+//CLASS TICKET ################################################################################################################################
+class Ticket
+{
+private:
+    char name[50];
+    //int ticket;
+    Admin a;
+public:
+    void generateTicket(char cname[], Admin ab)
+    {
+        strcpy(name,cname);
+        a = ab;
+    }
+
+    void displayTicket()
+    {
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout <<"\t\t\t\t\t\t\t\t\t\tName: " << name;
+        a.showTicket();
+
+    }
+
+    char* getName()
+    {
+        return name;
+    }
+};
+
+// CLASS CUSTOMER ################################################################################################################################
+class Customer
+{
+private:
+
+public:
+    void bookTicket();
+    void viewBookings();
+    void cancelTicket();
+} Cust1;
+
+// USER REGISTRATION FUNCTION #################################################################################################################
+void Customer::bookTicket()
+{
+  //  //
+
+    char from[200],name[50];
+    int chk=0;
+    Ticket t;
+    Admin ad;
+
+    cout<<"\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ###############::TICKET BOOKING::###############\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Destination:-> ";
+    cin.ignore();
+    cin.getline(from,200);
+
+    buses.open("Buses.dat", ios::in | ios::out | ios::app | ios::binary);
+    if(buses.fail())
+    {
+        cout << "\n\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+        //
+    }
+
+    else
+    {
+        while(buses.read((char*)&ad, sizeof(ad)))
+        {
+            if(strcmp(ad.getDeptSt(),from) == 0)
+            {
+                //
+                cout<<"\n\n\n\n";
+                cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+                cout<<"\t\t\t\t\t\t\t\t\t\t ###############::AVAILABLE BUSES::##############\n";
+                cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+                ad.showBus();
+                chk = 1;
+                cout << "\n\t\t\t\t\t\t\t\t\t\tEnter Customer Name :-> ";
+                cin.getline(name,50);
+                ad.book();
+                //ad.setTicketNo();
+                t.generateTicket(name,ad);
+                ticket.open("tickets.dat", ios::out | ios::app | ios::binary);
+                ticket.write((char*)&t, sizeof(t));
+                ticket.close();
+
+                buses.seekp(buses.tellg()-sizeof(ad), ios::beg);
+                buses.write((char*)&ad, sizeof(ad));
+
+                cout << "\n\t\t\t\t\t\t\t\t\t\tTicket Booked Successfully...!!";
+                cout << "\n\t\t\t\t\t\t\t\t\t\tYour Alloted TicketNo is [" << ad.getTicketNo() << "]";
+                cout << "\n\t\t\t\t\t\t\t\t\t\tPlease Remember Your TicketNo Carefully...!!";
+            }
+        }
+
+        if(chk == 0)
+            cout << "\n\t\t\t\t\t\t\t\t\t\tNo Buses Found...!!";
+        //
+    }
+
+    buses.close();
+}
+
+// USER LOGIN FUNCTION ########################################################################################################################
+void Customer::viewBookings()
+{
+    ////
+
+    char cname[50];
+    int chk = 0;
+    Ticket t;
+
+    cout<<"\n\n\n\n\n\n\n";
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Name:-> ";
+    cin.ignore();
+    cin.getline(cname,50);
+
+
+    //
+
+    cout<<"\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ################::YOUR BOOKINGS::###############\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+    ticket.open("tickets.dat", ios::in | ios::app | ios::binary);
+    if(ticket.fail())
+    {
+        cout << "\n\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+        //
+    }
+
+    else
+    {
+        while(ticket.read((char*)&t, sizeof(t)))
+        {
+            if(strcmp(t.getName(),cname) == 0)
+            {
+                t.displayTicket();
+                chk = 1;
+            }
+        }
+        if(chk = 0)
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tNo Bookings...!!";
+            //
+        }
+
+    }
+
+    ticket.close();
+}
+
+void Customer::cancelTicket()
+{
+    ////
+
+    char cname[50];
+    int chk = 0;
+    Ticket t;
+    Admin ad;
+
+    cout<<"\n\n\n\n\n\n\n";
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Name:-> ";
+    cin.ignore();
+    cin.getline(cname,50);
+
+    ticket.open("tickets.dat", ios::in | ios::out | ios::app | ios::binary);
+    buses.open("temp.dat", ios::out | ios::app | ios::binary);
+
+    if(ticket.fail())
+    {
+        cout << "\n\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+        //
+    }
+
+    else
+    {
+        ticket.seekg(0,ios::beg);
+        while(ticket.read((char*)&t, sizeof(t)))
+        {
+            if(strcmp(t.getName(),cname) != 0)
+            {
+                buses.write((char*)&t, sizeof(t));
+
+            }
+            else
+            {
+                chk = 1;
+            }
+        }
+        if(chk == 0)
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tTicket Not Found...!!";
+        }
+        else
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tTicket Cancelled...!!";
+        }
+
+    }
+
+    ticket.close();
+    buses.close();
+    remove("tickets.dat");
+    rename("temp.dat","tickets.dat");
+}
+
+// MAIN FUNCTION ############################################################################################################################################
+int main()
+{
+  //  //
+//    system("COLOR 0f");
+
+    string root_pass="the_solver";
+    string  pass;
+    cout<<"\n\n\n\n\n\n\n\n\n\n\n\n";
+    cout<<"\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\tEnter Master Password:-> ";
+    //ch = getc();
+    cin>>pass;
+//    while(ch != 13)// Max 16 characters
+  //  {
+  //      root_pass.push_back(ch);
+  //      cin>>ch;
+   //     cout<<"*";
+
+    //}
+    if(root_pass==pass)
+    {
+        Welcome();
+    }
+    else
+    {
+        ////
+        cout<<"\n\n\n\n\n\n\n";
+        cout<<"\n\n\n\t\t\t\t\t\t\t\t\t\tAccess Denied...!!!\n\n";
+        ////
+        main();
+    }
+
+    return 0;
+}
+
+//  ############################################WELCOME SCREEN FUNCTION##########################################################
+void Welcome()
+{
+   // //
+
+    cout<<"\n\n\n\n\n\n\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ||                  WELCOME TO                ||\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ||                                            ||\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ||            BUS RESERVATION SYSTEM          ||\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ||                                            ||\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ||                    PROJECT                 ||\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+    cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  FILE STRUCTURE MINI-PROJECT             \t\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t                      		     \t\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  DONE BY:---            		     \t\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  KANISHK KUMAR(1MV17IS023)               \t\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  PIYUSH DIWAKAR(1MV17IS036)              \t\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t                    			     \t\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n\n";
+
+    ////
+    MainMenu();
+}
+
+// ##############################################MAIN MENU FUNCTION##############################################################
+void MainMenu()
+{
+    int choice;
+
+    while(1)
+    {
+      //  //
+
+        // MENU ITEMS
+        cout<<"\n\n\n\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t #################::MAIN MENU::##################\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t1. Customer Portal \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t2. Admin Portal \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t3. EXIT \t\t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n\n";
+
+        cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter your choice:-> ";
+
+        cin>>choice;
+
+        switch(choice)
+
+        {
+
+        case 1:
+            UserMenu();
+            break;
+
+        case 2:
+            Ad1.AdminLogin();
+            break;
+
+        case 3:
+            //
+            cout<<"\n\n\n\n\t\t\t\t\t\t\t\t\t\t  Thanks for using our project...!!! \t\t\t\n";
+            cout<<"\n\n\t\t\t\t\t\t\t\t\t\t          Have a nice day...!!!      \t\t\t\n\n";
+            exit(0);
+
+        default:
+            cout<<"\n\n\t\t\t\t\t\t\t\t\t\t  Choose valid option!!! \t\t\t\n";
+            //
+            break;
+
+        }
+
+    }
+
+}
+
+// USER MENU FUNCTION #################################################################################################################################
+void UserMenu()
+{
+    int usr_choice;
+
+    while(1)
+    {
+      //  //
+
+        // MENU ITEMS
+        cout<<"\n\n\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t #################::USER PORTAL::################\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t1. Book Ticket       \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t2. View Bookings     \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t3. Cancel Ticket     \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t4. BACK              \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+
+        cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter your choice:-> ";
+
+        cin>>usr_choice;
+
+        switch(usr_choice)
+
+        {
+
+        case 1:
+            Cust1.bookTicket();
+            break;
+
+        case 2:
+            Cust1.viewBookings();
+            //
+            break;
+
+        case 3:
+            Cust1.cancelTicket();
+            //
+            break;
+
+        case 4:
+            //
+            MainMenu();
+            break;
+
+        default:
+            cout<<"\n\t\t\t\t\t  Choose valid option!!! \t\t\t\n";
+            //
+            UserMenu();
+            break;
+
+        }
+
+    }
+}
+
+// ADMIN MENU FUNCTION####################################################################################################################
+void AdminMenu()
+{
+    int admn_choice;
+
+    while(1)
+    {
+        ////
+
+        // MENU ITEMS
+        cout<<"\n\n\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ################::ADMIN PORTAL::################\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t1. Add Bus            \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t2. View Buses         \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t3. View Bookings      \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t4. Cancel Ticket      \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t5. Modify Booking     \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t6. Delete Bus         \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t|\t7. BACK               \t\t\t|\n";
+        cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n\n";
+
+        cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter your choice:-> ";
+
+        cin>>admn_choice;
+
+        switch(admn_choice)
+
+        {
+
+        case 1:
+            Ad1.AddBus();
+            //
+            break;
+
+        case 2:
+            Ad1.ViewBus();
+            cout<<"\n\n";
+            //
+            break;
+
+        case 3:
+            Ad1.viewBookings();
+            //
+            break;
+
+        case 4:
+            Ad1.cancelTickets();
+            //
+            break;
+
+        case 5:
+            Ad1.modifyTickets();
+            break;
+
+        case 6:
+            Ad1.deleteBus();
+            break;
+
+        case 7:
+            //
+            MainMenu();
+            break;
+
+        default:
+            cout<<"\n\t\t\t\t\t  Choose valid option!!! \t\t\t\n";
+            //
+            break;
+
+        }
+
+    }
+}
+
+//VIEW BOOKINGS FUNCTION ###################################################################################################
+void Admin::viewBookings()
+{
+    Ticket t;
+
+    ////
+
+    cout<<"\n\n\n\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ################::YOUR BOOKINGS::###############\n";
+    cout<<"\t\t\t\t\t\t\t\t\t\t ================================================\n\n\n";
+
+    ticket.open("tickets.dat", ios::in | ios::app | ios::binary);
+    if(ticket.fail())
+    {
+        cout << "\n\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+        //
+    }
+
+    else
+    {
+        ticket.read((char*)&t, sizeof(t));
+        while(!ticket.eof())
+        {
+            t.displayTicket();
+            ticket.read((char*)&t, sizeof(t));
+        }
+
+    }
+
+    ticket.close();
+}
+
+//CANCEL TICKET FUNCTION ########################################################################################################
+void Admin::cancelTickets()
+{
+    ////
+
+    char cname[50];
+    int chk = 0;
+    Ticket t;
+
+    cout<<"\n\n\n\n\n\n\n";
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Name:-> ";
+    cin.ignore();
+    cin.getline(cname,50);
+
+    ticket.open("tickets.dat", ios::in | ios::out | ios::app | ios::binary);
+    buses.open("temp.dat", ios::out | ios::app | ios::binary);
+
+    if(ticket.fail())
+    {
+        cout << "\n\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+        //
+    }
+
+    else
+    {
+        ticket.seekg(0,ios::beg);
+        while(ticket.read((char*)&t, sizeof(t)))
+        {
+            if(strcmp(t.getName(),cname) != 0)
+            {
+                buses.write((char*)&t, sizeof(t));
+
+            }
+            else
+            {
+                chk = 1;
+            }
+        }
+        if(chk == 0)
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tTicket Not Found...!!";
+        }
+        else
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tTicket Cancelled...!!";
+        }
+
+    }
+
+    ticket.close();
+    buses.close();
+    remove("tickets.dat");
+    rename("temp.dat","tickets.dat");
+}
+
+//MODIFY TICKET FUNCTION ###########################################################################################
+void Admin::modifyTickets()
+{
+    ////
+
+    char cname[50],name[50];
+    int chk = 0;
+    Ticket t;
+
+    cout<<"\n\n\n\n\n\n\n";
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Name:-> ";
+    cin.ignore();
+    cin.getline(cname,50);
+
+    ticket.open("tickets.dat", ios::in | ios::out | ios::app | ios::binary);
+    if(ticket.fail())
+    {
+        cout << "\n\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+        //
+    }
+
+    else
+    {
+        while(ticket.read((char*)&t, sizeof(t)))
+        {
+            if(strcmp(t.getName(),cname) == 0)
+            {
+                t.displayTicket();
+                ticket.seekg(0,ios::cur);
+                cout << "\n\n\t\t\t\t\t\t\t\t\t\tEnter New Details \n";
+                cout << "\n\t\t\t\t\t\t\t\t\t\tEnter Customer Name :-> ";
+                cin.getline(name,50);
+                ticket.seekp(ticket.tellg() - sizeof(t));
+                ticket.write((char*)&t, sizeof(t));
+                cout << "\n\t\t\t\t\t\t\t\t\t\tName Updated Successfully...!!";
+                chk = 1;
+            }
+        }
+        if(chk = 0)
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tRecord Not Found...!!";
+            //
+        }
+
+    }
+
+    ticket.close();
+
+}
+
+//DELETE BUS FUNCTION #####################################################################################################
+void Admin::deleteBus()
+{
+    ////
+
+    int bid;
+    int chk = 0;
+    Ticket t;
+
+    cout<<"\n\n\n\n\n\n\n";
+    cout<<"\n\t\t\t\t\t\t\t\t\t\tEnter Bus No:-> ";
+    cin>>bid;
+
+    buses.open("Buses.dat", ios::in | ios::out | ios::app | ios::binary);
+    ticket.open("temp.dat", ios::out | ios::app | ios::binary);
+
+    if(buses.fail())
+    {
+        cout << "\n\\t\t\t\t\t\t\t\t\t\tCan't Open File...!!";
+      //  //
+    }
+
+    else
+    {
+        buses.seekg(0,ios::beg);
+        while(buses.read((char*)&Ad1, sizeof(Admin)))
+        {
+            if(Ad1.getBusId() != bid)
+            {
+                ticket.write((char*)&Ad1, sizeof(Admin));
+
+            }
+            else
+            {
+                chk = 1;
+            }
+        }
+        if(chk == 0)
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tBus Not Found...!!";
+        }
+        else
+        {
+            cout << "\n\t\t\t\t\t\t\t\t\t\tBus Deleted...!!";
+        }
+
+    }
+
+    buses.close();
+    ticket.close();
+    remove("Buses.dat");
+    rename("temp.dat","Buses.dat");
+}
