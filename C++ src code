@@ -470,7 +470,6 @@ void Welcome()
     cout<<"\t\t\t\t\t\t\t\t\t\t\t\t                      		     \t\n";
     cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  DONE BY:---            		     \t\n";
     cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  KANISHK KUMAR(1MV17IS023)               \t\n";
-    cout<<"\t\t\t\t\t\t\t\t\t\t\t\t  PIYUSH DIWAKAR(1MV17IS036)              \t\n";
     cout<<"\t\t\t\t\t\t\t\t\t\t\t\t                    			     \t\n";
     cout<<"\t\t\t\t\t\t\t\t\t\t-------------------------------------------------\n\n";
 
